@@ -120,7 +120,7 @@ timeout: '1200s'
 
 # Build logs configuration
 options:
-  logging: LEGACY
+  logging: NONE
   machineType: 'E2_HIGHCPU_8'
 
 # Images to be pushed to Artifact Registry
