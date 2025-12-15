@@ -118,9 +118,8 @@ steps:
 # Build timeout (20 minutes)
 timeout: '1200s'
 
-# Build logs configuration
+# Build machine configuration
 options:
-  logging: NONE
   machineType: 'E2_HIGHCPU_8'
 
 # Images to be pushed to Artifact Registry
