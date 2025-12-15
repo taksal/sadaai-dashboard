@@ -1,8 +1,11 @@
 # Multi-stage build for NestJS Backend
 # Stage 1: Build
-FROM node:20-alpine AS builder
+FROM node:20-slim AS builder
 
 WORKDIR /app
+
+# Install OpenSSL and other dependencies needed for build
+RUN apt-get update && apt-get install -y openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
 COPY package*.json ./
@@ -24,16 +27,16 @@ RUN npm run build
 RUN echo "=== Build output ===" && ls -laR dist/ && echo "=== Checking for main.js ===" && (test -f dist/main.js && echo "✓ dist/main.js found" || echo "✗ dist/main.js not found, checking dist/src/main.js") && (test -f dist/src/main.js && echo "✓ dist/src/main.js found" || echo "✗ No main.js found")
 
 # Stage 2: Production
-FROM node:20-alpine AS production
+FROM node:20-slim AS production
 
 WORKDIR /app
 
-# Install dumb-init and OpenSSL for Prisma
-RUN apk add --no-cache dumb-init openssl
+# Install dumb-init, OpenSSL and CA certificates for Prisma
+RUN apt-get update && apt-get install -y dumb-init openssl ca-certificates && rm -rf /var/lib/apt/lists/*
 
 # Create non-root user
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nestjs -u 1001
+RUN groupadd -g 1001 nodejs && \
+    useradd -r -u 1001 -g nodejs nestjs
 
 # Copy package files
 COPY package*.json ./
