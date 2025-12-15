@@ -5,8 +5,8 @@ substitutions:
   _REGION: australia-southeast1  # Sydney, Australia
   _BACKEND_SERVICE: backend
   _FRONTEND_SERVICE: frontend
-  _BACKEND_IMAGE: australia-southeast1-docker.pkg.dev/sada-platform/sada/backend
-  _FRONTEND_IMAGE: australia-southeast1-docker.pkg.dev/sada-platform/sada/frontend
+  _BACKEND_IMAGE: australia-southeast1-docker.pkg.dev/sadaai-dashboard/sadaai-docker/backend
+  _FRONTEND_IMAGE: australia-southeast1-docker.pkg.dev/sadaai-dashboard/sadaai-docker/frontend
 
 steps:
   # Step 1: Build Backend Docker Image
@@ -36,7 +36,7 @@ steps:
     args:
       - 'build'
       - '--build-arg'
-      - 'NEXT_PUBLIC_API_URL=https://api.yourdomain.com'
+      - 'NEXT_PUBLIC_API_URL=https://backend-placeholder.run.app'
       - '-t'
       - '${_FRONTEND_IMAGE}:${COMMIT_SHA}'
       - '-t'
@@ -79,11 +79,11 @@ steps:
       - '--port'
       - '3001'
       - '--add-cloudsql-instances'
-      - 'sada-platform:${_REGION}:sada-db'
+      - 'sadaai-dashboard:${_REGION}:sadaai-db'
       - '--update-secrets'
       - 'DATABASE_URL=DATABASE_URL:latest,JWT_SECRET=JWT_SECRET:latest,JWT_REFRESH_SECRET=JWT_REFRESH_SECRET:latest,REDIS_HOST=REDIS_HOST:latest,NEXTAUTH_SECRET=NEXTAUTH_SECRET:latest'
       - '--update-env-vars'
-      - 'NODE_ENV=production,PORT=3001,FRONTEND_URL=https://yourdomain.com'
+      - 'NODE_ENV=production,PORT=3001,FRONTEND_URL=https://frontend-placeholder.run.app'
     waitFor: ['push-backend']
 
   # Step 6: Deploy Frontend to Cloud Run
@@ -112,7 +112,7 @@ steps:
       - '--port'
       - '3000'
       - '--update-env-vars'
-      - 'NODE_ENV=production,NEXT_PUBLIC_API_URL=https://api.yourdomain.com'
+      - 'NODE_ENV=production,NEXT_PUBLIC_API_URL=https://backend-placeholder.run.app'
     waitFor: ['push-frontend']
 
 # Build timeout (20 minutes)
