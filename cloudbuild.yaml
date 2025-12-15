@@ -76,6 +76,8 @@ steps:
       - '512Mi'
       - '--cpu'
       - '1'
+      - '--timeout'
+      - '300'
       - '--add-cloudsql-instances'
       - 'sadaai-dashboard:${_REGION}:sadaai-db'
       - '--update-secrets'
