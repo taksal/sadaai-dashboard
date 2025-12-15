@@ -1,0 +1,284 @@
+// prisma/schema.prisma
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  ADMIN
+  CLIENT
+}
+
+enum CallStatus {
+  COMPLETED
+  FAILED
+  TRANSFERRED
+  ACTIVE
+}
+
+enum CalendarProvider {
+  GOOGLE
+  OUTLOOK
+}
+
+enum AppointmentStatus {
+  SCHEDULED
+  CONFIRMED
+  CANCELLED
+  COMPLETED
+  NO_SHOW
+}
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  name        String
+  companyName String?
+  role        UserRole @default(CLIENT)
+  isActive    Boolean  @default(true)
+  
+  // Tenant isolation - each client is isolated
+  tenantId  String?  @unique // For clients, this is their own ID
+  
+  // Pricing configuration
+  pricePerMinute  Float   @default(0)
+  monthlyCharge   Float   @default(0)
+  billingCycle    String  @default("monthly")
+
+  // New billing fields for included minutes model
+  includedMinutes Int     @default(0)
+  overageRate     Float   @default(0)
+  billingResetDay Int     @default(1)
+  
+  // VAPI Assistant (stores JSON array of {id, name})
+  vapiAssistantId String?
+  vapiAssistants  Json?
+
+  // VAPI API Credentials (encrypted)
+  vapiApiKey      String?
+  vapiOrgId       String?
+  
+  // App access permissions (JSON array of component names)
+  appAccess  Json?
+
+  // Force logout timestamp - when admin forces logout, client checks this
+  forceLogoutAt DateTime?
+
+  // Force password change on first login
+  mustChangePassword Boolean @default(false)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  calls               Call[]
+  activityLogs        ActivityLog[]
+  billingHistory      BillingHistory[]
+  calendarConnections CalendarConnection[]
+  appointments        Appointment[]
+
+  @@index([email])
+  @@index([tenantId])
+}
+
+model Call {
+  id              String     @id @default(uuid())
+  userId          String
+  user            User       @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Call details
+  callId          String     @unique // VAPI call ID
+  assistantId     String?    // VAPI assistant ID that handled this call
+  customerPhone   String     @db.VarChar(100) // Support longer phone numbers and SIP URIs
+  type            String?    // inbound, outbound, web
+  status          CallStatus @default(ACTIVE)
+  duration        Int        @default(0) // in seconds
+  cost            Float      @default(0)
+  
+  startTime       DateTime   @default(now())
+  endTime         DateTime?
+  endReason       String?
+  
+  // Call content
+  transcript      String?    @db.Text
+  summary         String?    @db.Text
+  recordingUrl    String?
+  
+  // Success evaluation
+  isSuccessful    Boolean    @default(false)
+  transferredTo   String?
+  
+  createdAt       DateTime   @default(now())
+  updatedAt       DateTime   @updatedAt
+  
+  @@index([userId, startTime])
+  @@index([status])
+  @@index([customerPhone])
+}
+
+model ActivityLog {
+  id          String   @id @default(uuid())
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  
+  action      String   // LOGIN, LOGOUT, CREATE_USER, UPDATE_USER, etc.
+  entityType  String?  // USER, CALL, APPOINTMENT, etc.
+  entityId    String?
+  description String
+  ipAddress   String?
+  userAgent   String?
+  
+  createdAt   DateTime @default(now())
+  
+  @@index([userId, createdAt])
+  @@index([action])
+}
+
+model SystemConfig {
+  id    String @id @default(uuid())
+  key   String @unique
+  value Json
+  
+  updatedAt DateTime @updatedAt
+}
+
+model BillingHistory {
+  id                  String   @id @default(uuid())
+  userId              String
+  user                User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Billing period
+  billingPeriodStart  DateTime
+  billingPeriodEnd    DateTime
+  billingMonth        String   // e.g., "2025-01" for January 2025
+
+  // Usage details
+  totalMinutes        Int      @default(0)
+  includedMinutes     Int      @default(0)
+  overageMinutes      Int      @default(0)
+
+  // Charges
+  monthlyCharge       Float    @default(0)
+  overageCharge       Float    @default(0)
+  totalCharge         Float    @default(0)
+
+  // Billing configuration at the time
+  pricePerMinute      Float?   @default(0)
+  overageRate         Float?   @default(0)
+
+  // Status
+  status              String   @default("pending") // pending, paid, overdue
+  paidAt              DateTime?
+
+  createdAt           DateTime @default(now())
+  updatedAt           DateTime @updatedAt
+
+  @@index([userId, billingMonth])
+  @@index([userId, createdAt])
+  @@unique([userId, billingMonth])
+}
+
+// Calendar Integration Models
+
+model CalendarOAuthConfig {
+  id           String           @id @default(uuid())
+  provider     CalendarProvider @unique
+
+  // OAuth credentials (set by admin)
+  clientId     String
+  clientSecret String           // Encrypted in application
+  redirectUri  String
+  scopes       String           // Comma-separated list of scopes
+
+  // Additional config
+  isEnabled    Boolean          @default(true)
+
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([provider])
+}
+
+model CalendarConnection {
+  id            String           @id @default(uuid())
+  userId        String
+  user          User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  provider      CalendarProvider
+
+  // OAuth tokens (encrypted)
+  accessToken   String           @db.Text
+  refreshToken  String           @db.Text
+  tokenExpiry   DateTime
+
+  // Calendar info
+  calendarId    String?          // Primary calendar ID
+  calendarName  String?
+  email         String?          // Connected calendar email
+
+  // Connection status
+  isActive      Boolean          @default(true)
+  lastSyncedAt  DateTime?
+
+  createdAt     DateTime         @default(now())
+  updatedAt     DateTime         @updatedAt
+
+  @@unique([userId, provider])
+  @@index([userId])
+  @@index([provider])
+}
+
+model Appointment {
+  id                String            @id @default(uuid())
+  bookingReference  String            @unique // e.g., "BK-2025-001234"
+  userId            String
+  user              User              @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Customer information
+  customerName      String
+  customerPhone     String
+  customerEmail     String?
+
+  // Appointment details
+  title             String
+  description       String?           @db.Text
+  startTime         DateTime
+  endTime           DateTime
+  timezone          String            @default("UTC")
+
+  // Status tracking
+  status            AppointmentStatus @default(SCHEDULED)
+
+  // Calendar integration
+  provider          CalendarProvider?
+  externalEventId   String?           // ID in Google/Outlook calendar
+  calendarSyncedAt  DateTime?
+
+  // Related call (if booked via Vapi AI)
+  callId            String?
+  vapiCallId        String?           // VAPI call ID that created this
+
+  // Cancellation/modification tracking
+  cancellationReason String?          @db.Text
+  cancelledAt        DateTime?
+
+  // Reminders
+  reminderSentAt    DateTime?
+
+  // Metadata
+  notes             String?           @db.Text
+
+  createdAt         DateTime          @default(now())
+  updatedAt         DateTime          @updatedAt
+
+  @@index([userId, startTime])
+  @@index([status])
+  @@index([customerPhone])
+  @@index([bookingReference])
+  @@index([vapiCallId])
+  @@index([startTime])
+}

@@ -1,0 +1,608 @@
+/* 🎨 Design System - Soft & Floating Aesthetic */
+
+/* Import Raleway Font */
+@import url('https://fonts.googleapis.com/css2?family=Raleway:wght@400;500;600;700;800&display=swap');
+
+/* ============================================
+   1. CSS CUSTOM PROPERTIES (Design Tokens)
+   ============================================ */
+:root {
+  /* Core Colors */
+  --color-background: #F0F4F8;
+  --color-surface: #FFFFFF;
+  --color-sidebar: #FFFFFF;
+  --color-primary: #004769;
+  --color-primary-light: #F0F4F8;
+  --color-primary-hover: #485460;
+
+  /* Gradient Colors */
+  --color-gradient-start: #000000;
+  --color-gradient-end: #540D9B;
+
+  /* Text Colors */
+  --color-text-main: #1E293B;
+  --color-text-muted: #64748B;
+  --color-text-light: #94A3B8;
+
+  /* Status Colors - Success */
+  --color-success-bg: #DCFCE7;
+  --color-success-text: #14532D;
+  --color-success-border: #86EFAC;
+
+  /* Status Colors - Warning */
+  --color-warning-bg: #FEF9C3;
+  --color-warning-text: #713F12;
+  --color-warning-border: #FDE047;
+
+  /* Status Colors - Danger */
+  --color-danger-bg: #FEE2E2;
+  --color-danger-text: #7F1D1D;
+  --color-danger-border: #FCA5A5;
+
+  /* Status Colors - Info */
+  --color-info-bg: #F3E8FF;
+  --color-info-text: #7E22CE;
+  --color-info-border: #D8B4FE;
+
+  /* Border Radius System */
+  --radius-container: 32px;
+  --radius-card: 24px;
+  --radius-medium: 16px;
+  --radius-small: 12px;
+  --radius-pill: 100px;
+
+  /* Shadows */
+  --shadow-soft: 0 10px 40px -10px rgba(0, 0, 0, 0.05);
+  --shadow-medium: 0 14px 30px -8px rgba(0, 0, 0, 0.08);
+  --shadow-large: 0 20px 50px -12px rgba(0, 0, 0, 0.12);
+  --shadow-floating: 0 8px 24px -4px rgba(79, 70, 229, 0.12);
+
+  /* Spacing System */
+  --spacing-xs: 8px;
+  --spacing-sm: 12px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+
+  /* Typography */
+  --font-family: 'Raleway', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  --font-weight-normal: 400;
+  --font-weight-medium: 500;
+  --font-weight-semibold: 600;
+  --font-weight-bold: 700;
+  --font-weight-extrabold: 800;
+}
+
+/* ============================================
+   2. GLOBAL RESETS & BASE STYLES
+   ============================================ */
+* {
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-family);
+  background-color: var(--color-background);
+  color: var(--color-text-main);
+  margin: 0;
+  padding: 0;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* ============================================
+   3. FLOATING LAYOUT SYSTEM
+   ============================================ */
+.floating-layout {
+  display: flex;
+  gap: var(--spacing-lg);
+  padding: var(--spacing-lg);
+  min-height: 100vh;
+  background-color: var(--color-background);
+}
+
+.floating-sidebar {
+  width: 250px;
+  background: var(--color-sidebar);
+  border-radius: var(--radius-container);
+  box-shadow: var(--shadow-soft);
+  padding: var(--spacing-lg);
+  position: sticky;
+  top: var(--spacing-lg);
+  bottom: var(--spacing-lg);
+  height: calc(100vh - var(--spacing-lg) * 2);
+  overflow-y: auto;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+}
+
+.floating-main {
+  flex: 1;
+  min-width: 0;
+}
+
+/* ============================================
+   4. CARD SYSTEM
+   ============================================ */
+.card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: var(--spacing-lg);
+  margin-bottom: var(--spacing-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  /* no border, restored to original */
+}
+
+.card:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+/* Header card - no effects, background color, fixed position */
+header.card {
+  background: var(--color-background);
+  box-shadow: none;
+  padding: var(--spacing-xs) var(--spacing-lg);
+  margin-bottom: 0;
+  border-radius: 0;
+  position: sticky;
+  top: 0;
+  z-index: 50;
+}
+
+header.card:hover {
+  box-shadow: none;
+  transform: none;
+}
+
+.card-compact {
+  padding: var(--spacing-md);
+}
+
+.card-no-padding {
+  padding: 0;
+}
+
+.card-header {
+  margin-bottom: var(--spacing-md);
+  padding-bottom: var(--spacing-md);
+}
+
+.card-title {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-main);
+  margin: 0;
+}
+
+/* Calendar Metric Cards with borders */
+.calendar-metric-card {
+  border-left-width: 5px;
+  border-left-style: solid;
+}
+
+.calendar-metric-card.confirmed {
+  border-left-color: var(--color-success-text);
+}
+
+.calendar-metric-card.rescheduled {
+  border-left-color: var(--color-warning-text);
+}
+
+.calendar-metric-card.canceled {
+  border-left-color: var(--color-danger-text);
+}
+
+.card-description {
+  font-size: 0.875rem;
+  color: var(--color-text-muted);
+  margin-top: var(--spacing-xs);
+}
+
+/* ============================================
+   5. BUTTON SYSTEM (Pill-Shaped)
+   ============================================ */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--spacing-xs);
+  padding: 12px 24px;
+  border-radius: var(--radius-pill);
+  font-family: var(--font-family);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  border: none;
+  cursor: pointer;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  white-space: nowrap;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-primary {
+  background: linear-gradient(to right, var(--color-gradient-start), var(--color-gradient-end));
+  color: white;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.2s ease;
+}
+
+.btn-primary::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: -100%;
+  width: 100%;
+  height: 100%;
+  background: var(--color-gradient-start);
+  transition: left 0.4s ease;
+  z-index: -1;
+}
+
+.btn-primary:hover:not(:disabled)::before {
+  left: 0;
+}
+
+.btn-primary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-primary > * {
+  position: relative;
+  z-index: 1;
+}
+
+.btn-secondary {
+  background: var(--color-surface);
+  color: var(--color-text-main);
+}
+
+.btn-secondary:hover:not(:disabled) {
+  transform: translateY(-1px);
+}
+
+.btn-ghost {
+  background: transparent;
+  color: var(--color-text-muted);
+}
+
+.btn-ghost:hover:not(:disabled) {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+}
+
+.btn-sm {
+  padding: 8px 16px;
+  font-size: 0.8125rem;
+}
+
+.btn-lg {
+  padding: 14px 28px;
+  font-size: 1rem;
+}
+
+.btn-icon {
+  padding: 10px;
+  aspect-ratio: 1;
+}
+
+/* ============================================
+   6. INPUT SYSTEM (Pill-Shaped)
+   ============================================ */
+.input {
+  width: 100%;
+  padding: 12px 20px;
+  border-radius: var(--radius-pill);
+  border: 2px solid transparent;
+  background: var(--color-background);
+  font-family: var(--font-family);
+  font-size: 0.875rem;
+  color: var(--color-text-main);
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  background: var(--color-surface);
+}
+
+.input::placeholder {
+  color: var(--color-text-light);
+}
+
+/* ============================================
+   7. STATUS PILLS & BADGES
+   ============================================ */
+.pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: var(--radius-pill);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  white-space: nowrap;
+}
+
+.pill-success {
+  background: var(--color-success-bg);
+  color: var(--color-success-text);
+}
+
+.pill-warning {
+  background: var(--color-warning-bg);
+  color: var(--color-warning-text);
+}
+
+.pill-danger {
+  background: var(--color-danger-bg);
+  color: var(--color-danger-text);
+}
+
+.pill-info {
+  background: var(--color-info-bg);
+  color: var(--color-info-text);
+}
+
+/* ============================================
+   8. NAVIGATION MENU (Floating Pills)
+   ============================================ */
+.nav-menu {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+}
+
+.nav-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-radius: var(--radius-pill);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  text-decoration: none;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  cursor: pointer;
+}
+
+.nav-item:hover {
+  background: var(--color-background);
+  color: var(--color-text-main);
+}
+
+.nav-item.active {
+  background: var(--color-primary-light);
+  color: var(--color-primary);
+  font-weight: var(--font-weight-semibold);
+}
+
+.nav-item svg {
+  width: 20px;
+  height: 20px;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   9. TABLE SYSTEM
+   ============================================ */
+.table-container {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  overflow: hidden;
+  box-shadow: var(--shadow-soft);
+}
+
+.table {
+  width: 100%;
+  border-collapse: separate;
+  border-spacing: 0;
+}
+
+.table thead {
+  background: var(--color-background);
+}
+
+.table th {
+  padding: 16px 20px;
+  text-align: left;
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.table td {
+  padding: 16px 20px;
+  font-size: 0.875rem;
+  color: var(--color-text-main);
+  border-top: 1px solid var(--color-background);
+}
+
+.table tbody tr {
+  transition: background 0.15s ease;
+}
+
+.table tbody tr:hover {
+  background: var(--color-background);
+}
+
+/* ============================================
+   10. STAT CARD (Numbers Display)
+   ============================================ */
+.stat-card {
+  background: var(--color-surface);
+  border-radius: var(--radius-card);
+  box-shadow: var(--shadow-soft);
+  padding: var(--spacing-lg);
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  min-height: 140px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+.stat-card:hover {
+  box-shadow: var(--shadow-medium);
+  transform: translateY(-2px);
+}
+
+.stat-label {
+  font-size: 0.8125rem;
+  font-weight: var(--font-weight-medium);
+  color: var(--color-text-muted);
+  margin-bottom: var(--spacing-xs);
+}
+
+.stat-value {
+  font-size: 2.5rem;
+  font-weight: var(--font-weight-extrabold);
+  color: var(--color-text-main);
+  line-height: 1;
+}
+
+.stat-change {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  margin-top: var(--spacing-xs);
+}
+
+.stat-change.positive {
+  color: var(--color-success-text);
+}
+
+.stat-change.negative {
+  color: var(--color-danger-text);
+}
+
+/* ============================================
+   11. UTILITY CLASSES
+   ============================================ */
+.text-main { color: var(--color-text-main); }
+.text-muted { color: var(--color-text-muted); }
+.text-light { color: var(--color-text-light); }
+
+.font-bold { font-weight: var(--font-weight-bold); }
+.font-extrabold { font-weight: var(--font-weight-extrabold); }
+.font-semibold { font-weight: var(--font-weight-semibold); }
+
+.rounded-pill { border-radius: var(--radius-pill); }
+.rounded-card { border-radius: var(--radius-card); }
+.rounded-medium { border-radius: var(--radius-medium); }
+
+.shadow-soft { box-shadow: var(--shadow-soft); }
+.shadow-medium { box-shadow: var(--shadow-medium); }
+.shadow-large { box-shadow: var(--shadow-large); }
+
+.gap-xs { gap: var(--spacing-xs); }
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+
+/* Gradient Backgrounds */
+.bg-gradient-primary {
+  background: linear-gradient(to bottom right, var(--color-gradient-start), var(--color-gradient-end));
+}
+
+.bg-gradient-primary-horizontal {
+  background: linear-gradient(to right, var(--color-gradient-start), var(--color-gradient-end));
+}
+
+.bg-gradient-primary-vertical {
+  background: linear-gradient(to bottom, var(--color-gradient-start), var(--color-gradient-end));
+}
+
+/* Gradient Text */
+.text-gradient-primary {
+  background: linear-gradient(to bottom right, var(--color-gradient-start), var(--color-gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.text-gradient-primary-horizontal {
+  background: linear-gradient(to right, var(--color-gradient-start), var(--color-gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+.text-gradient-primary-vertical {
+  background: linear-gradient(to bottom, var(--color-gradient-start), var(--color-gradient-end));
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  text-fill-color: transparent;
+}
+
+/* ============================================
+   12. RESPONSIVE UTILITIES
+   ============================================ */
+@media (max-width: 1024px) {
+  .floating-layout {
+    flex-direction: column;
+    gap: var(--spacing-md);
+    padding: var(--spacing-md);
+  }
+
+  .floating-sidebar {
+    width: 100%;
+    position: static;
+    max-height: none;
+  }
+}
+
+@media (max-width: 768px) {
+  :root {
+    --radius-container: 24px;
+    --radius-card: 20px;
+  }
+
+  .floating-layout {
+    padding: var(--spacing-sm);
+    gap: var(--spacing-sm);
+  }
+
+  .card {
+    padding: var(--spacing-md);
+  }
+
+  .stat-value {
+    font-size: 2rem;
+  }
+}
+
+/* ============================================
+   13. ANIMATIONS & TRANSITIONS
+   ============================================ */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* Smooth transitions for interactive elements */
+.transition-all {
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+}

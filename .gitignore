@@ -1,0 +1,52 @@
+# Dependencies
+node_modules/
+/npm-debug.log*
+/yarn-debug.log*
+/yarn-error.log*
+
+# Environment variables
+.env
+.env.local
+.env.*.local
+.env.production
+backend/.env
+backend/.env.local
+backend/.env.production
+frontend/.env.local
+frontend/.env.production
+
+# Build outputs
+dist/
+build/
+.next/
+out/
+*.log
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Testing
+coverage/
+.nyc_output/
+
+# Temporary files
+*.tmp
+tmp/
+temp/
+
+# Database
+*.sqlite
+*.db
+
+# Secrets (keep in GCP Secret Manager)
+**/secrets/
+*.pem
+*.key
