@@ -20,8 +20,8 @@ RUN npx prisma generate
 # Build the application
 RUN npm run build
 
-# Verify build output
-RUN ls -la dist/ && test -f dist/main.js || (echo "Build failed: dist/main.js not found" && exit 1)
+# Verify build output (show what was built)
+RUN echo "=== Build output ===" && ls -laR dist/ && echo "=== Checking for main.js ===" && (test -f dist/main.js && echo "✓ dist/main.js found" || echo "✗ dist/main.js not found, checking dist/src/main.js") && (test -f dist/src/main.js && echo "✓ dist/src/main.js found" || echo "✗ No main.js found")
 
 # Stage 2: Production
 FROM node:20-alpine AS production
@@ -46,6 +46,9 @@ RUN npm install --only=production --legacy-peer-deps && \
 # Copy built application from builder
 COPY --from=builder /app/dist ./dist
 COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
+
+# Create symlink if main.js is in dist/src/
+RUN if [ -f dist/src/main.js ] && [ ! -f dist/main.js ]; then ln -s src/main.js dist/main.js; fi
 
 # Change ownership to non-root user
 RUN chown -R nestjs:nodejs /app
