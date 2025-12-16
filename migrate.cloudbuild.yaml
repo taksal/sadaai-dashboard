@@ -1,0 +1,52 @@
+# Cloud Build Configuration for Running Prisma Migrations
+# Run with: gcloud builds submit --config=migrate.cloudbuild.yaml --project=sadaai-dashboard
+
+substitutions:
+  _REGION: australia-southeast1
+  _INSTANCE_CONNECTION_NAME: sadaai-dashboard:australia-southeast1:sadaai-db
+
+steps:
+  # Run Prisma migrations using Node.js with Cloud SQL Proxy
+  - name: 'node:20-slim'
+    id: 'run-migrations'
+    dir: 'backend'
+    entrypoint: 'bash'
+    args:
+      - '-c'
+      - |
+        set -e
+        echo "📦 Installing system dependencies..."
+        apt-get update -qq
+        apt-get install -y -qq openssl ca-certificates curl
+
+        echo "🔌 Downloading Cloud SQL Proxy..."
+        curl -o /tmp/cloud-sql-proxy https://storage.googleapis.com/cloud-sql-connectors/cloud-sql-proxy/v2.14.2/cloud-sql-proxy.linux.amd64
+        chmod +x /tmp/cloud-sql-proxy
+
+        echo "🚀 Starting Cloud SQL Proxy..."
+        /tmp/cloud-sql-proxy ${_INSTANCE_CONNECTION_NAME} --port 5432 &
+        PROXY_PID=$!
+
+        echo "⏳ Waiting for proxy to initialize..."
+        sleep 15
+
+        echo "📚 Installing Node.js dependencies..."
+        npm install --legacy-peer-deps --quiet
+
+        echo "🔧 Generating Prisma Client..."
+        npx prisma@5.22.0 generate
+
+        echo "🗄️ Running Prisma migrations..."
+        DATABASE_URL="postgresql://dbuser:Aa7fEvmdx4Ft60iD6Q80gayy1Y%2BlSJ4guP5x%2Bf%2F7KYA%3D@127.0.0.1:5432/call_analytics" \
+        npx prisma@5.22.0 migrate deploy
+
+        echo "🛑 Stopping Cloud SQL Proxy..."
+        kill $PROXY_PID || true
+
+        echo "✅ Migrations completed successfully!"
+
+timeout: '900s'
+
+options:
+  machineType: 'E2_HIGHCPU_8'
+  logging: CLOUD_LOGGING_ONLY
